@@ -1,6 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
+import { CreateUserDto } from 'src/users/dto/user.dto';
+import { Users } from 'src/users/schema/users.schema';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -10,7 +12,7 @@ export class AuthService {
         private jwtService: JwtService
     ) {}
 
-    // Function to Sing in an user
+    // Function to Sing-in an user
     async signIn(email: string, pass: string): Promise<any> {
 
         // Find the user by email
@@ -29,5 +31,19 @@ export class AuthService {
         return {
             access_token: await this.jwtService.signAsync(payload),
         };
+    }
+
+    // Register a new user into the database
+    async register(user: CreateUserDto): Promise<Users> {
+    
+        // Check if the user already exists in the database
+        const existingUser = await this.usersService.findByEmail(user.email);
+        if (existingUser) {
+          throw new ConflictException('User with this email already exists.');
+        }
+    
+        // Create the user
+        return await this.usersService.register(user);
+
     }
 }
