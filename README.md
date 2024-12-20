@@ -5,95 +5,171 @@
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
 [circleci-url]: https://circleci.com/gh/nestjs/nest
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+# Proyecto Backend en NestJS
 
-## Description
+Este proyecto es una API desarrollada con **Node.js**, **MongoDB** y **TypeScript**, diseñada para gestionar usuarios, camiones, órdenes y ubicaciones. Incluye autenticación mediante JWT y un enfoque en código limpio, buenas prácticas y uso eficiente de las herramientas disponibles.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Objetivos principales:
+  - Desarrollar la lógica de una API con interfaces, modelos, rutas y controladores.
+  - Implementar autenticación JWT y validar tokens en cada endpoint.
+  - Crear CRUDs para cada dominio (`Users`, `Trucks`, `Orders`, `Locations`).
+  - Validar datos antes de su inserción en la base de datos.
+  - Usar variables de entorno almacenadas en un archivo `.env`.
+  - Consumir un API externa llamada Places API de Google para obtener la dirección y coordenadas de un determinado lugar.
 
-## Project setup
+## Dominios Implementados
+
+**Nota**: El acceso a todos los endpoints requieren del JWT, excepto el registro y el login de usuarios. El JWT debe estar incluido en los headers con Key `Authorization` y Value `Bearer eyJhbGciOiJIUzI1Ni...`
+
+### **Users**
+- Funcionalidad:
+  - Registro de usuarios asegurando que no se dupliquen registros.
+  - Login de usuarios con generación de un token JWT.
+  - Administración de usuarios (Crear, eliminar, actualizar, listar).
+- Endpoints `/auth`:
+  - Registro de usuario `POST /auth/register`
+  - Inicio de sesión de usuarios `POST /auth/login`
+- Endpoints `/users`:
+  - Listar todos los usuarios `GET /users`
+  - Obtener un usuario por ID `GET /users/:id`
+  - Obtener un usuario por email `GET /users/email/:email`
+  - Crear un usuario `POST /users`
+    - ```json
+      {
+        "email": "string", //(required)
+        "password": "string" //(required)
+      }
+  - Borrar un usuario por ID `DELETE /users/:id`
+  - Actualizar un usuario por ID `PATCH /users/:id`
+- Esquema:
+  ```json
+  {
+    "email": "string",
+    "password": "string"
+  }
+---
+### **Trucks**
+- Funcionalidad:
+  - Administración de camiones asociados a un usuario.
+- Endpoints `/trucks`:
+  - Listar todos los camiones `GET /trucks`
+  - Obtener un camión por ID `GET /trucks/:id`
+  - Obtener todos los camiones de un usuario `GET /trucks/users/:userId`
+  - Registrar un camión `POST /trucks`
+    - ```json
+      {
+        "user": "ObjectId", //(required)
+        "year": "string", //(required)
+        "color": "string", //(required)
+        "plates": "string" //(required)
+      }
+  - Borrar un camión por ID `DELETE /trucks/:id`
+  - Actualizar un camión por ID `PATCH /trucks/:id`
+- Esquema:
+  ```json
+  {
+    "user": "ObjectId",
+    "year": "string",
+    "color": "string",
+    "plates": "string"
+  }
+---
+### **Orders**
+- Funcionalidad:
+  - Crear órdenes vinculadas a un usuario, un camión, un origen (pickup) y un destino (dropoff).
+  - Actualizar el estatus de una orden (`created`, `in_transit`, `completed`).
+- Endpoints `/orders`:
+  - Listar todas las ordenes `GET /orders`
+  - Obtener una orden por ID `GET /orders/:id`
+  - Obtener todas las ordenes de un usuario `GET /orders/user/:userId`
+  - Crear una nueva orden `POST /orders`
+    - ```json
+      {
+        "user": "ObjectId", //(required)
+        "truck": "ObjectId", //(optional)
+        "status": "string (created | in_transit | completed)", //(required)
+        "pickup": "ObjectId", //(optional)
+        "dropoff": "ObjectId" //(optional)
+      }
+  - Eliminar una orden por ID `DELETE /orders/:id`
+  - Actualizar una orden por ID `PATCH /orders/:id`
+  - Actualizar el STATUS de una orden por ID `PATCH /orders/status/:id`
+    - ```json
+      {
+        "status": "string (created | in_transit | completed)" //(required)
+      }
+- Esquema:
+  ```json
+  {
+    "user": "ObjectId",
+    "truck": "ObjectId",
+    "status": "string (created | in_transit | completed)",
+    "pickup": "ObjectId",
+    "dropoff": "ObjectId"
+  }
+---
+### **Locations**
+- Funcionalidad:
+  - Crear ubicaciones usando un `place_id` de Google Maps.
+  - Evitar duplicados al crear ubicaciones.
+  - Obtener coordenadas y dirección usando la API de Google Maps.
+  - Listar, modificar y eliminar ubicaciones.
+- Endpoints `/locations`:
+  - Listas las ubicaciones `GET /locations`
+  - Obtener una ubicación por ID `GET /locations/:id`
+  - Obtener una ubicación por place_id `GET /locations/place/placeId`
+  - Registrar una nueva ubicación por place_id `POST /locations`
+    - ```json
+      {
+        "place_id": "string", //required
+      }
+  - Borrar una ubicación por ID `DELETE /locations/:id`
+  - Actualizar una ubicación por ID `PATCH /locations/:id`
+- Esquema:
+  ```json
+  {
+    "address": "string",
+    "place_id": "string",
+    "latitude": "number",
+    "longitude": "number"
+  }
+---
+## Configuración del proyecto
+
+### Requisitos
+  - Node.js 16+
+  - MongoDB
+  - Archivo `.env` configurado con las variables necesarias.
+```ini
+DB_URI=mongodb://127.0.0.1:27017/trucks_system
+JWT_SECRET=
+JWT_EXPIRES_IN=4h
+BCRYPT_SALTIT=10
+APIKEY_PLACES_GOOGLE=
+HTTP_TIMEOUT=10000
+HTTP_MAX_REDIRECTS=5
+```
+
+## Instalación
 
 ```bash
 $ npm install
 ```
 
-## Compile and run the project
+## Compilación y ejecución del proyecto
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
+# Desarrollo
 $ npm run start:dev
 
-# production mode
+# Producción
 $ npm run start:prod
 ```
 
-## Run tests
+## Despliegue a producción
 
-```bash
-# unit tests
-$ npm run test
+Para desplegar la aplicación a producción, consulte la [Documentación](https://docs.nestjs.com/deployment) para obtener más información.
 
-# e2e tests
-$ npm run test:e2e
+## Licencias
 
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+  - Nest posee una licencia [MIT](https://github.com/nestjs/nest/blob/master/LICENSE).
