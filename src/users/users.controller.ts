@@ -10,11 +10,13 @@ import { ValidateEmailPipe } from './pipes/validate-email.pipe';
 export class UsersController {
     constructor(private usersService: UsersService) {}
 
+    // Get all users (Read)
     @Get()
     async getAllUsers(): Promise<Users[]> {
         return this.usersService.findAll();
     }
 
+    // Get user by Id (Read)
     @Get(':id')
     async findById(
         @Param('id', ValidateObjectIdPipe)
@@ -23,6 +25,7 @@ export class UsersController {
         return this.usersService.findById(id);
     }
 
+    // Get user by email (Read)
     @Get('email/:email')
     async getUserByEmail(
         @Param('email', ValidateEmailPipe)
@@ -31,6 +34,7 @@ export class UsersController {
         return this.usersService.findByEmail(email);
     }
 
+    // Register user (Create)
     @Post()
     async create(
         @Body()
@@ -39,6 +43,7 @@ export class UsersController {
       return this.usersService.register(user);
     }
 
+    // Delete user by Id (Delete)
     @Delete(':id')
     async delete(
         @Param('id', ValidateObjectIdPipe)
@@ -47,6 +52,7 @@ export class UsersController {
       return this.usersService.deleteById(id);
     }
 
+    // Update user by Id (Update)
     @Patch(':id')
     async update(
         @Param('id', ValidateObjectIdPipe)

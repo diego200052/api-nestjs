@@ -9,11 +9,13 @@ import { CreateLocationDto, UpdateLocationDto } from './dto/locations.dto';
 export class LocationsController {
     constructor(private locationsService: LocationsService) {}
 
+    // Get all locations (Read)
     @Get()
     async getAll(): Promise<Locations[]> {
         return this.locationsService.findAll();
     }
 
+    // Get location by Id (Read)
     @Get(':id')
     async findById(
         @Param('id', ValidateObjectIdPipe)
@@ -22,6 +24,7 @@ export class LocationsController {
         return this.locationsService.findById(id);
     }
 
+    // Get location by place_id (Read)
     @Get('place/:placeId')
     async findAllFromUserById(
         @Param('placeId')
@@ -30,6 +33,7 @@ export class LocationsController {
         return this.locationsService.findByPlaceId(placeId);
     }
 
+    // Register new location by place_id (Create)
     @Post()
     async create(
         @Body()
@@ -38,6 +42,7 @@ export class LocationsController {
       return this.locationsService.create(location);
     }
 
+    // Delete location by Id (Delete)
     @Delete(':id')
     async deleteById(
         @Param('id', ValidateObjectIdPipe)
@@ -46,6 +51,7 @@ export class LocationsController {
       return this.locationsService.deleteById(id);
     }
 
+    // Update location by Id (Update)
     @Patch(':id')
     async updateById(
         @Param('id', ValidateObjectIdPipe)

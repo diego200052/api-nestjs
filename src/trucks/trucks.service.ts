@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Types } from 'mongoose';
 import { Trucks } from './schema/trucks.schema';
 import { CreateTruckDto } from './dto/trucks.dto';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class TrucksService {
@@ -10,6 +11,7 @@ export class TrucksService {
     constructor(
         @InjectModel(Trucks.name)
         private trucksModel: mongoose.Model<Trucks>,
+        private usersService: UsersService
     ) { }
 
     // Get all trucks (Read)
@@ -43,6 +45,12 @@ export class TrucksService {
 
     // Register new truck (Create)
     async register(truck: CreateTruckDto) {
+
+        // Verify that the user exists in the database
+        const userExists = await this.usersService.findById(truck.user)
+        if (!userExists) {
+            throw new NotFoundException('User not found.');
+        }
 
         // Define the new truck
         const newTruck = new this.trucksModel({

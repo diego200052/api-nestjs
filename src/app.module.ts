@@ -19,7 +19,7 @@ import { LocationsModule } from './locations/locations.module';
 		UsersModule,
 		AuthModule,
 		TrucksModule,
-		OrdersModule],
+		OrdersModule,
 		LocationsModule],
 	controllers: [AppController],
 	providers: [AppService],

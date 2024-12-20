@@ -1,10 +1,11 @@
 import { PartialType, PickType } from "@nestjs/mapped-types";
-import { IsNotEmpty } from "class-validator";
+import { IsMongoId, IsNotEmpty } from "class-validator";
 import { Types } from "mongoose";
 
 export class LocationsDto {
 
     @IsNotEmpty()
+    @IsMongoId({ message: '_id must be a valid ObjectId.' })
     readonly _id: Types.ObjectId;
 
     @IsNotEmpty()

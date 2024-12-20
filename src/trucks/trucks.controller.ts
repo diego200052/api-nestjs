@@ -9,11 +9,13 @@ import { CreateTruckDto, UpdateTruckDto } from './dto/trucks.dto';
 export class TrucksController {
     constructor(private trucksService: TrucksService) {}
 
+    // Get all trucks (Read)
     @Get()
     async getAll(): Promise<Trucks[]> {
         return this.trucksService.findAll();
     }
 
+    // Get truck by Id (Read)
     @Get(':id')
     async findById(
         @Param('id', ValidateObjectIdPipe)
@@ -22,6 +24,7 @@ export class TrucksController {
         return this.trucksService.findById(id);
     }
 
+    // Get all trucks from an user (Read)
     @Get('user/:userId')
     async findAllFromUserById(
         @Param('userId', ValidateObjectIdPipe)
@@ -30,6 +33,7 @@ export class TrucksController {
         return this.trucksService.findAllFromUserById(userId);
     }
 
+    // Register new truck (Create)
     @Post()
     async create(
         @Body()
@@ -38,6 +42,7 @@ export class TrucksController {
       return this.trucksService.register(truck);
     }
 
+    // Delete truck by Id (Delete)
     @Delete(':id')
     async deleteById(
         @Param('id', ValidateObjectIdPipe)
@@ -46,6 +51,7 @@ export class TrucksController {
       return this.trucksService.deleteById(id);
     }
 
+    // Update truck by Id (Update)
     @Patch(':id')
     async updateById(
         @Param('id', ValidateObjectIdPipe)

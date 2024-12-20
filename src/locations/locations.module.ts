@@ -24,6 +24,8 @@ import { GooglePlacesService } from './google-places.service';
     LocationsService,
     GooglePlacesService
   ],
-  exports: [LocationsService]
+  exports: [
+    LocationsService
+  ]
 })
 export class LocationsModule {}
